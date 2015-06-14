@@ -1,0 +1,64 @@
+function raw2img_main()
+{
+    function __raw2img_help()
+    {
+        echo "Usage :"
+        echo "    [Convert]"
+        echo "        raw2img -<format> <file name>"
+        echo "            formats : {jpeg, png, ps, tiff}"
+        echo "    [Show help]"
+        echo "        raw2img -h"
+        echo "        raw2img --help"
+        echo ""
+    }
+
+    local filename format pnmtool fmtlist validfmt
+
+    echo $1
+    echo $2
+    return 0
+
+    # Validate given target format
+    validfmt=0;
+    fmtlist=(-jpeg -png -ps -tiff);
+
+    for format in $fmtlist; do
+        [[ "$1" == "$format" ]] && validfmt=1 && break
+    ; done
+
+    [[ $validfmt != 1 ]] && {
+        __raw2img_help
+        return -1
+    }
+
+    ## Convert jpeg -> jpg
+    [[ "$format" == "jpeg" ]] && format="jpg";
+
+    # Configure params
+    format=$(echo $1 | tr -d '-');
+    filename="$*[2, $#*]";
+    pnmtool="pnmto${format}";
+
+    # Validate target file
+    [[ -e $filename ]] || {
+        echo "[Error] : Missing target file ($filename)"
+        return -1
+    }
+
+    # Validate required tools
+    [[ -x `which $pnmtool` ]] || {
+        echo "[Error] : Missing $pnmtool. Install netpbm package"
+        return -1
+    }
+
+    [[ -x `which dcraw` ]] || {
+        echo "[Error] : Missing dcraw. Install dcraw package"
+        return -1
+    }
+
+    # Run main conveter
+    dcraw -c -w $filename | $pnmtool > ./$filename:t:r.$format
+    reutrn 1
+}
+
+raw2img_main $*
