@@ -1,0 +1,12 @@
+#compdef raw2img
+
+function _raw2img()
+{
+    _arguments \
+        '(- *)'{-jpeg,-jpg}'[Convert to jpeg]' \
+        '(- *)'-png'[Convet to png]'           \
+        '(- *)'-ps'[Convert to ps]'            \
+        '(- *)'-tiff'[Convert to tiff]'        \
+        '(- *)'{-h,--help}'[Show help]'        \
+        ': :_files'
+}
